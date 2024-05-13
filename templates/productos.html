@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}
+Productos
+{% endblock %}
+
+{% block main %}
+    <h1 class="ml-5 mt-5">Stock</h1>
+    <p class="ml-5 blockquote">Keeping an eye on the products stock!</p>
+    {% for producto in productos %}
+    <article>
+        <header>
+            <h3 class="ml-5"><a href="{{ url_for('main.producto', producto_id=producto.id)}}">{{ producto.nombre }}</a></h3>
+        </header>
+    </article>
+    {% else %}
+    <p>No hay posts</p>
+    {% endfor %}
+{% endblock %}
