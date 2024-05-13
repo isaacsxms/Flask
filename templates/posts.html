@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}
+Entradas
+{% endblock %}
+
+{% block main %}
+    {% for post in posts %}
+    <article>
+        <header>
+            <h2><a href="{{ url_for('main.post', post_id=post.id)}}">{{ post.title }}</a></h2>
+        </header>
+    </article>
+    {% else %}
+    <p>No hay posts</p>
+    {% endfor %}
+{% endblock %}
