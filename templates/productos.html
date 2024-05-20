@@ -9,7 +9,7 @@ Productos
     {% for producto in productos %}
     <article>
         <header>
-            <h3 class="ml-5"><a href="{{ url_for('main.producto', producto_id=producto.id)}}">{{ producto.nombre }}</a></h3>
+            <h3 class="ml-5"><a href="{{ url_for('main.producto', producto_id=producto.id)}}">{{ producto.name }}</a></h3>
         </header>
     </article>
     {% else %}

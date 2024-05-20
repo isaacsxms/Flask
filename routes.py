@@ -42,3 +42,17 @@ def producto(producto_id):
 def productos():
     productos = Producto.query.all()
     return render_template("productos.html", productos=productos)
+
+@main.route("/stock/add", methods=['POST'])
+def add_stock():
+    form = PostForm()
+    if form.validate_on_submit():
+        name = request.form.get("name")
+        product = Producto(name=name)
+        db.session.add(product)
+        db.session.commit()
+        return redirect(url_for(main.home))
+    return render_template("albaran.html", form=form)
+
+
+# Routing help: https://pythongeeks.org/python-flask-app-routing/
