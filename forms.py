@@ -1,9 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import validators, StringField
+from wtforms import IntegerField, validators, StringField
+from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
-class PostForm(FlaskForm):
-    title = StringField("Title", [
-        validators.DataRequired(),
-        validators.Length(min=4, max=200)
-        ])
-    
+class AddProductForm(FlaskForm):
+    tomate_producto = StringField("tomateProducto", validators=[Length(min=1, max=50)])
+    tomate_cantidad = IntegerField("tomateCantidad", validators=[NumberRange(min=1)])

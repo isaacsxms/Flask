@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 from models import  Producto, db #Post
-from forms import PostForm
+from forms import AddProductForm
 
 main = Blueprint('main', __name__)
 
@@ -40,19 +40,28 @@ def producto(producto_id):
 
 @main.route("/productos") # por defecto es GET
 def productos():
-    productos = Producto.query.all()
+    productos = Producto.query.all()    
     return render_template("productos.html", productos=productos)
 
-@main.route("/stock/add", methods=['POST'])
+@main.route("/albaran", methods=['GET', 'POST'])
 def add_stock():
-    form = PostForm()
-    if form.validate_on_submit():
-        name = request.form.get("name")
-        product = Producto(name=name)
-        db.session.add(product)
-        db.session.commit()
-        return redirect(url_for(main.home))
-    return render_template("albaran.html", form=form)
+    print("Inside albaran")
+    form = AddProductForm()
+    if request.method == "POST" and form.validate():
+        for product in form:
+            product_id = int(product.name)
+            quantity = int(request.form.get(product.name))
+            if quantity > 0:
+                # Find the product by its ID
+                product = Producto.query.get_or_404(product_id)
+                # Update the stock quantity
+                product.stock += quantity
+                # Commit the changes to the database
+                db.session.commit()
+        return redirect(url_for('main.productos'))
+    # If the form is not submitted or is invalid, render the template with the form
+    products = Producto.query.all()
+    return render_template("albaran.html", form=form, products=products)
 
 
 # Routing help: https://pythongeeks.org/python-flask-app-routing/

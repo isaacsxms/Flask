@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -13,7 +14,20 @@ class Producto(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     stock = db.Column(db.Integer, nullable=False)
 
+class Factura(db.Model):
+    __tablename__ = 'factura'
+    id = db.Column(db.Integer, primary_key=True)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    productos = db.Column(db.String(50), nullable=False)
+
 class Linea_Producto_Albaran(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     id_albaran = db.Column(db.Integer, db.ForeignKey('albaran.id'))
     id_producto = db.Column(db.Integer, db.ForeignKey('producto.id'))
+    cantidad = db.Column(db.Integer, nullable=False)
+
+class Factura_Producto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    id_factura = db.Column(db.Integer, db.ForeignKey('factura.id'))
+    id_producto = db.Column(db.Integer, db.ForeignKey('producto.id'))
+    cantidad = db.Column(db.Integer, nullable=False)
