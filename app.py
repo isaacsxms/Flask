@@ -2,16 +2,12 @@ from flask import Flask
 from routes import main
 from models import db, Producto
 
-# Create the Flask app
 app = Flask(__name__)
 
-# Load the configuration
 app.config.from_object("config.DevConfig")
 
-# Register the main blueprint
 app.register_blueprint(main)
 
-# Initialize the ORM
 db.init_app(app)
 
 # Create the database tables (if not already created)

@@ -8,16 +8,7 @@ main = Blueprint('main', __name__)
 def home():
     return render_template("index.html")
 
-@main.route("/adios")
-def adios():
-    return "adios"
-
-@main.route("/producto/<int:producto_id>")
-def producto(producto_id):
-    producto = Producto.query.get_or_404(producto_id)
-    return render_template("producto.html", producto=producto)
-
-@main.route("/productos") # por defecto es GET
+@main.route("/productos")
 def productos():
     productos = Producto.query.all()    
     return render_template("productos.html", productos=productos)
@@ -26,17 +17,15 @@ def productos():
 def add_stock():
     form = AddProductForm()
     data = {}
+    # We iterate over the items in the request form to get the POST request value which is (product_id: Quantity)
     for key, value in request.form.items():
         if key != 'csrf_token':
             data[int(key)] = int(value)
 
-    print(data)
-
     productos = Producto.query.all()
-    print(form.producto.data)
 
     if request.method == "POST" and form.validate():
-        # Iteramos sobre las cantidades de cada producto para ver si almenos uno de los productos tienen una cantidad elevada a 0
+        # We iterate over the quantities of each product to see if atleast one of the products have a quantity > than 0
         check_quantity = any(quantity > 0 for quantity in data.values())
 
         if not check_quantity:
@@ -55,7 +44,7 @@ def add_stock():
                     print(f"Product ID: {producto.id}, Quantity: {quantity}")
                     linea_producto_albaran = Linea_Producto_Albaran(id_albaran=albaran.id, id_producto=producto.id, cantidad=quantity)
                     db.session.add(linea_producto_albaran)
-                    producto.stock += quantity
+                    producto.stock += quantity # increment stock
 
         db.session.commit()
         return redirect(url_for('main.productos'))
@@ -69,12 +58,13 @@ def create_factura():
     productos = Producto.query.all()
 
     data = {}
+    # We iterate over the items in the request form to get the POST request value which is (product_id: Quantity)
     for key, value in request.form.items():
         if key != 'csrf_token':
             data[int(key)] = int(value)
     print(data)
     if request.method == "POST" and form.validate():
-        # Iteramos sobre las cantidades de cada producto para ver si almenos uno de los productos tienen una cantidad elevada a 0
+        # We iterate over the quantities of each product to see if atleast one of the products have a quantity > than 0
         check_quantity = any(quantity > 0 for quantity in data.values())
 
         if not check_quantity:
@@ -85,12 +75,12 @@ def create_factura():
 
         factura = Factura()
         db.session.add(factura)
-        db.session.flush()
+        # flush to obtain id, to insert into the Factura_Producto. We don't commit, because if there is an error, we want to rollback
+        db.session.flush() 
 
-        print(form.producto.data)
         for producto in productos:
             if producto.id in data:
-                quantity = data[producto.id]
+                quantity = data[producto.id] # retrieves the quantity value associated with each product id
                 if quantity > 0:
                     if producto.stock - quantity < 0:
                         print(f"Not enough stock available for {producto.name}. Please select a lower quantity.", "error")
@@ -101,7 +91,7 @@ def create_factura():
                     else:
                         factura_producto = Factura_Producto(id_factura=factura.id, id_producto=producto.id, cantidad=quantity)
                         db.session.add(factura_producto)
-                        producto.stock -= quantity
+                        producto.stock -= quantity # reduce stock
                         
         if error_occurred:
             print("An error occurred during the transaction. Rolling back.")
