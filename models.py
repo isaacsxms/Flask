@@ -16,7 +16,6 @@ class Producto(db.Model):
 class Factura(db.Model):
     __tablename__ = 'factura'
     id = db.Column(db.Integer, primary_key=True)
-    productos = db.Column(db.String(50), nullable=False)
 
 class Linea_Producto_Albaran(db.Model):
     id = db.Column(db.Integer, primary_key=True)

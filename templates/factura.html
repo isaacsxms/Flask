@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+Realizar Compra
+{% endblock %}
+
+{% block main %}
+<div class="mt-5 ml-5">
+    <h1>Factura</h1>
+    <h6 class="mb-4">Realizar Compra</h6>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {% for product in productos %}
+        <div class="mb-2">
+            <label class="blockquote">{{ product.name }}:</label>
+            <input type="number" name="{{ product.id }}" value="0" min="0" step="1">
+        </div>
+        {% endfor %}
+        <input type="submit" class="mt-4 btn btn-info" value="Comprar"/>
+    </form>
+</div>
+{% endblock %}

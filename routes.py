@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
-from models import  Producto, Albaran, db #Post
-from forms import AddProductForm
+from models import  Producto, Albaran, db, Linea_Producto_Albaran, Factura, Factura_Producto
+from forms import AddProductForm, PurchaseForm
 
 main = Blueprint('main', __name__)
 
@@ -11,27 +11,6 @@ def home():
 @main.route("/adios")
 def adios():
     return "adios"
-
-#@main.route("/posts")
-#def posts():
-#    posts = Post.query.all()
-#    return render_template("posts.html", posts=posts)
-
-#@main.route("/post/<int:post_id>")
-#def post(post_id):
-#    post = Post.query.get_or_404(post_id)
-#    return render_template("post.html", post=post)
-
-#@main.route("/createpost", methods=["GET", "POST"])
-#def add_post():
-#    form = PostForm()
-#    if form.validate_on_submit():
-#       title = request.form.get("title")
-#        post = Post(title=title)
-#        db.session.add(post)
-#        db.session.commit()
-#        return redirect(url_for("main.home"))
-#    return render_template("create_post.html", form=form)
 
 @main.route("/producto/<int:producto_id>")
 def producto(producto_id):
@@ -65,24 +44,72 @@ def add_stock():
 
 @main.route("/albaran", methods=['GET', 'POST'])
 def add_stock():
-    print("Entered albaran")
     form = AddProductForm()
-    print(request.form)
+    data = {}
+    for key, value in request.form.items():
+        if key != 'csrf_token':
+            data[int(key)] = int(value)
+
+    print(data)
+
     productos = Producto.query.all()
     print(form.producto.data)
-    for producto in productos:
-        
-        for choice in form.producto.data:
-            print('choice: ' + choice)
 
-    if request.method == "POST":
+    if request.method == "POST" and form.validate():
         print("Passed validation")
+        
         albaran = Albaran()
-        #albaran.producto = #
         db.session.add(albaran)
         db.session.commit()
-    
+
+        for producto in productos:
+            if producto.id in data:
+                quantity = data[producto.id]
+                if quantity > 0:
+                    print(f"Product ID: {producto.id}, Quantity: {quantity}")
+                    linea_producto_albaran = Linea_Producto_Albaran(id_albaran=albaran.id, id_producto=producto.id, cantidad=quantity)
+                    db.session.add(linea_producto_albaran)
+                    producto.stock += quantity
+
+        db.session.commit()
+
+            #for choice in form.producto.choices:
+            #    if choice == producto.name:
+            #        print("Entered :)")
+
     return render_template("albaran.html", form=form, productos=productos)
     
 
-# Routing help: https://pythongeeks.org/python-flask-app-routing/
+@main.route("/factura", methods=['GET', 'POST'])
+def create_factura():
+    form = PurchaseForm()
+    productos = Producto.query.all()
+
+    data = {}
+    for key, value in request.form.items():
+        if key != 'csrf_token':
+            data[int(key)] = int(value)
+    print(data)
+    if request.method == "POST" and form.validate():
+        print("POST!!!")
+        # Create a new factura entry
+        factura = Factura()
+        db.session.add(factura)
+        db.session.commit()
+
+        print(form.producto.data)
+        # Iterate over the selected products and reduce the stock
+        for producto in productos:
+            if producto.id in data:
+                quantity = data[producto.id]
+                if quantity > 0:
+                    print(f"Product ID: {producto.id}, Quantity: {quantity}")
+                    factura_producto = Factura_Producto(id_factura=factura.id, id_producto=product_id, cantidad=quantity)
+                    db.session.add(factura_producto)
+                    producto.stock -= quantity
+
+        db.session.commit()  # Commit changes to the database
+
+    return render_template("factura.html", form=form, productos=productos)
+
+
