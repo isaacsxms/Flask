@@ -22,26 +22,6 @@ def productos():
     productos = Producto.query.all()    
     return render_template("productos.html", productos=productos)
 
-""" @main.route("/albaran", methods=['GET', 'POST'])
-def add_stock():
-    print("Inside albaran")
-    form = AddProductForm()
-    if request.method == "POST" and form.validate():
-        for product in form:
-            product_id = int(product.name)
-            quantity = int(request.form.get(product.name))
-            if quantity > 0:
-                # Find the product by its ID
-                product = Producto.query.get_or_404(product_id)
-                # Update the stock quantity
-                product.stock += quantity
-                # Commit the changes to the database
-                db.session.commit()
-        return redirect(url_for('main.productos'))
-    # If the form is not submitted or is invalid, render the template with the form
-    products = Producto.query.all()
-    return render_template("albaran.html", form=form, products=products) """
-
 @main.route("/albaran", methods=['GET', 'POST'])
 def add_stock():
     form = AddProductForm()
@@ -56,11 +36,17 @@ def add_stock():
     print(form.producto.data)
 
     if request.method == "POST" and form.validate():
-        print("Passed validation")
-        
+        # Iteramos sobre las cantidades de cada producto para ver si almenos uno de los productos tienen una cantidad elevada a 0
+        check_quantity = any(quantity > 0 for quantity in data.values())
+
+        if not check_quantity:
+            print("Please select at least one product to purchase.")
+            return redirect(url_for("main.add_stock"))  # Redirect back to the form
+
+
         albaran = Albaran()
         db.session.add(albaran)
-        db.session.commit()
+        db.session.commit()  # Commit the Albaran to obtain its id
 
         for producto in productos:
             if producto.id in data:
@@ -72,10 +58,7 @@ def add_stock():
                     producto.stock += quantity
 
         db.session.commit()
-
-            #for choice in form.producto.choices:
-            #    if choice == producto.name:
-            #        print("Entered :)")
+        return redirect(url_for('main.productos'))
 
     return render_template("albaran.html", form=form, productos=productos)
     
@@ -91,24 +74,42 @@ def create_factura():
             data[int(key)] = int(value)
     print(data)
     if request.method == "POST" and form.validate():
-        print("POST!!!")
-        # Create a new factura entry
+        # Iteramos sobre las cantidades de cada producto para ver si almenos uno de los productos tienen una cantidad elevada a 0
+        check_quantity = any(quantity > 0 for quantity in data.values())
+
+        if not check_quantity:
+            print("Please select at least one product to purchase.")
+            return redirect(url_for("main.create_factura"))  # Redirect back to the form
+
+        error_occurred = False
+
         factura = Factura()
         db.session.add(factura)
-        db.session.commit()
+        db.session.flush()
 
         print(form.producto.data)
-        # Iterate over the selected products and reduce the stock
         for producto in productos:
             if producto.id in data:
                 quantity = data[producto.id]
                 if quantity > 0:
-                    print(f"Product ID: {producto.id}, Quantity: {quantity}")
-                    factura_producto = Factura_Producto(id_factura=factura.id, id_producto=product_id, cantidad=quantity)
-                    db.session.add(factura_producto)
-                    producto.stock -= quantity
+                    if producto.stock - quantity < 0:
+                        print(f"Not enough stock available for {producto.name}. Please select a lower quantity.", "error")
+                        error_occurred = True
+                        db.session.rollback()
+                        break
 
-        db.session.commit()  # Commit changes to the database
+                    else:
+                        factura_producto = Factura_Producto(id_factura=factura.id, id_producto=producto.id, cantidad=quantity)
+                        db.session.add(factura_producto)
+                        producto.stock -= quantity
+                        
+        if error_occurred:
+            print("An error occurred during the transaction. Rolling back.")
+            db.session.rollback()
+            return redirect(url_for("main.create_factura"))  # Redirect back to the form
+        else:
+            db.session.commit()
+            return redirect(url_for('main.productos'))
 
     return render_template("factura.html", form=form, productos=productos)
 
