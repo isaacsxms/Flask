@@ -10,7 +10,7 @@ Añade productos al stock:
       <h6 class="mb-4">Añade stock!</h6>
    <form method="post">
         {{ form.hidden_tag() }}
-        {% for product in products %}
+        {% for product in productos %}
         <div class="mb-2">
             <label class="blockquote">{{ product.name }}:</label>
             <input type="number" name="{{ product.id }}" value="0" min="0" step="1">

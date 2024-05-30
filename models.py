@@ -6,7 +6,6 @@ db = SQLAlchemy()
 class Albaran(db.Model):
     __tablename__ = 'albaran'
     id = db.Column(db.Integer, primary_key=True)
-    producto = db.Column(db.String(50), nullable=False)
 
 class Producto(db.Model):
     __tablename__ = 'producto'
@@ -17,7 +16,6 @@ class Producto(db.Model):
 class Factura(db.Model):
     __tablename__ = 'factura'
     id = db.Column(db.Integer, primary_key=True)
-    fecha = db.Column(db.DateTime, default=datetime.utcnow)
     productos = db.Column(db.String(50), nullable=False)
 
 class Linea_Producto_Albaran(db.Model):

@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, render_template, request, url_for
-from models import  Producto, db #Post
+from models import  Producto, Albaran, db #Post
 from forms import AddProductForm
 
 main = Blueprint('main', __name__)
@@ -43,7 +43,7 @@ def productos():
     productos = Producto.query.all()    
     return render_template("productos.html", productos=productos)
 
-@main.route("/albaran", methods=['GET', 'POST'])
+""" @main.route("/albaran", methods=['GET', 'POST'])
 def add_stock():
     print("Inside albaran")
     form = AddProductForm()
@@ -61,7 +61,28 @@ def add_stock():
         return redirect(url_for('main.productos'))
     # If the form is not submitted or is invalid, render the template with the form
     products = Producto.query.all()
-    return render_template("albaran.html", form=form, products=products)
+    return render_template("albaran.html", form=form, products=products) """
 
+@main.route("/albaran", methods=['GET', 'POST'])
+def add_stock():
+    print("Entered albaran")
+    form = AddProductForm()
+    print(request.form)
+    productos = Producto.query.all()
+    print(form.producto.data)
+    for producto in productos:
+        
+        for choice in form.producto.data:
+            print('choice: ' + choice)
+
+    if request.method == "POST":
+        print("Passed validation")
+        albaran = Albaran()
+        #albaran.producto = #
+        db.session.add(albaran)
+        db.session.commit()
+    
+    return render_template("albaran.html", form=form, productos=productos)
+    
 
 # Routing help: https://pythongeeks.org/python-flask-app-routing/
