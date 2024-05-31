@@ -4,15 +4,33 @@ Productos
 {% endblock %}
 
 {% block main %}
-    <h1 class="ml-5 mt-5">Stock</h1>
-    <p class="ml-5 blockquote">Keeping an eye on the products stock!</p>
+<div class="ml-5 mt-5">
+    <h1>Stock</h1>
+    <p class="blockquote">Keeping an eye on the products stock!</p>
     {% for producto in productos %}
     <article>
         <header>
-            <h3 class="ml-5">{{ producto.name }}: {{ producto.stock }}</h3>
+            <h3>{{ producto.name }}: {{ producto.stock }}</h3>
         </header>
     </article>
     {% else %}
     <p>No hay posts</p>
     {% endfor %}
+
+    <h2 class="mt-5">Add New Product</h2>
+    <h6 class="mb-4">Añade un nuevo producto al inventario!</h6>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="mb-2">
+                <label class="blockquote">{{ form.name.label }}</label>
+                {{ form.name }}
+            </div>
+            <div class="mb-2">
+                <label class="blockquote">{{ form.price.label }}</label>
+                {{ form.price }}
+            </div>
+            <input type="submit" class="mt-4 btn btn-info" value="Añadir producto"/>
+        </form>
+</div>
+
 {% endblock %}

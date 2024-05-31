@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 from models import  Producto, Albaran, db, Linea_Producto_Albaran, Factura, Factura_Producto
-from forms import AddProductForm, PurchaseForm
+from forms import AddProductForm, PurchaseForm, CreateProductForm
 
 main = Blueprint('main', __name__)
 
@@ -8,10 +8,28 @@ main = Blueprint('main', __name__)
 def home():
     return render_template("index.html")
 
-@main.route("/productos")
+@main.route("/productos", methods=['GET', 'POST'])
 def productos():
-    productos = Producto.query.all()    
-    return render_template("productos.html", productos=productos)
+    form = CreateProductForm()
+    productos = Producto.query.all()
+
+    if request.method == "POST":
+        if form.validate_on_submit():
+            new_product = Producto(
+                name=form.name.data,
+                stock=0,  # We set stock to 0 by default, makes no sense to add stock if no albaran has been ordered
+                price=form.price.data
+            )
+            db.session.add(new_product)
+            db.session.commit()
+            print('Nuevo producto añadido correctamente')
+            return redirect(url_for('main.productos'))
+        else:
+            print('Error al añadir el producto. Por favor, intente nuevamente.')
+
+    return render_template("productos.html", productos=productos, form=form)
+
+
 
 @main.route("/albaran", methods=['GET', 'POST'])
 def add_stock():
@@ -102,5 +120,3 @@ def create_factura():
             return redirect(url_for('main.productos'))
 
     return render_template("factura.html", form=form, productos=productos)
-
-

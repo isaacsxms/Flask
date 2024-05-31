@@ -12,6 +12,7 @@ class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     stock = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Integer, nullable=False)
 
 class Factura(db.Model):
     __tablename__ = 'factura'
