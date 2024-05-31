@@ -10,7 +10,7 @@ Productos
     {% for producto in productos %}
     <article>
         <header>
-            <h3>{{ producto.name }}: {{ producto.stock }}</h3>
+            <p class="blockquote"><b>{{ producto.name }}:</b> {{ producto.stock }} - precio: {{ producto.price }}€</p>
         </header>
     </article>
     {% else %}
@@ -18,15 +18,15 @@ Productos
     {% endfor %}
 
     <h2 class="mt-5">Add New Product</h2>
-    <h6 class="mb-4">Añade un nuevo producto al inventario!</h6>
+    <p class="mb-4 blockquote">Añade un nuevo producto al inventario o Introduce un producto existente e introuduce un nuevo precio</p>
         <form method="post">
             {{ form.hidden_tag() }}
             <div class="mb-2">
-                <label class="blockquote">{{ form.name.label }}</label>
+                <label class="blockquote"><b>{{ form.name.label }}</b></label>
                 {{ form.name }}
             </div>
             <div class="mb-2">
-                <label class="blockquote">{{ form.price.label }}</label>
+                <label class="blockquote"><b>{{ form.price.label }}</b></label>
                 {{ form.price }}
             </div>
             <input type="submit" class="mt-4 btn btn-info" value="Añadir producto"/>

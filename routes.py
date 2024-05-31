@@ -15,14 +15,24 @@ def productos():
 
     if request.method == "POST":
         if form.validate_on_submit():
-            new_product = Producto(
-                name=form.name.data,
-                stock=0,  # We set stock to 0 by default, makes no sense to add stock if no albaran has been ordered
-                price=form.price.data
-            )
-            db.session.add(new_product)
-            db.session.commit()
-            print('Nuevo producto añadido correctamente')
+            # Check if the submitted product name already exists
+            existing_product = Producto.query.filter_by(name=form.name.data).first()
+
+            if existing_product:
+                # Update the price of the product
+                existing_product.price = form.price.data
+                db.session.commit()
+                print('Precio del producto actualizado correctamente')
+            else:
+                # Create new product
+                new_product = Producto(
+                    name=form.name.data,
+                    stock=0,  # We set stock to 0 by default, makes no sense to add stock if no albaran has been ordered
+                    price=form.price.data
+                )
+                db.session.add(new_product)
+                db.session.commit()
+                print('Nuevo producto añadido correctamente')
             return redirect(url_for('main.productos'))
         else:
             print('Error al añadir el producto. Por favor, intente nuevamente.')
